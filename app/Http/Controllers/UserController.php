@@ -119,11 +119,13 @@ class UserController extends Controller
         // Simple CSV parsing
         $handle = fopen($file->getPathname(), "r");
         $header = fgetcsv($handle, 1000, ","); // Skip header
+        dump('Header:', $header);
         
         $importedCount = 0;
         $skippedCount = 0;
 
         while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            dump('Row:', $data);
             // Mapping based on template: 0=name, 1=username, 2=password
             $name = $data[0] ?? null;
             $username = $data[1] ?? null;
