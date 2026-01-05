@@ -24,6 +24,13 @@
                     </div>
                 </form>
 
+                <form action="{{ route('dashboard.dummy-votes') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin generate dummy votes untuk SEMUA pengguna yang belum memilih?');">
+                   @csrf
+                   <button type="submit" class="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 text-xs font-bold rounded-lg border border-red-200">
+                       Auto Vote (Dummy)
+                   </button>
+                </form>
+
                 <div class="glass-card px-4 py-2 rounded-lg text-sm font-medium text-orange-900 bg-white/80 h-[42px] flex items-center">
                     Terakhir diperbarui: {{ now()->timezone('Asia/Makassar')->format('H:i:s') }} WITA
                 </div>

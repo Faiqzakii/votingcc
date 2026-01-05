@@ -48,4 +48,53 @@ class DashboardController extends Controller
 
         return redirect()->back()->with('success', 'Tahap voting berhasil diperbarui ke Tahap ' . $request->phase);
     }
+
+    public function generateDummyVotes(Request $request)
+    {
+        $phase = \App\Models\Setting::where('key', 'current_phase')->value('value') ?? 1;
+        $users = \App\Models\User::where('email', '!=', 'admin@example.com')
+            ->whereDoesntHave('votes', function($q) use ($phase) {
+                $q->where('phase', $phase);
+            })
+            ->get();
+
+        if ($users->isEmpty()) {
+            return redirect()->back()->with('error', 'Semua pengguna sudah melakukan voting pada fase ini.');
+        }
+
+        $candidates = \App\Models\Candidate::all(); // Retrieve once
+
+        // Filter finalists for Phase 2
+        if ($phase == 2) {
+            $candidates = $candidates->where('is_finalist', true)->values();
+        }
+
+        if ($candidates->count() < ($phase == 2 ? 5 : 3)) {
+             return redirect()->back()->with('error', 'Kandidat tidak cukup untuk melakukan voting (Butuh ' . ($phase == 2 ? 5 : 3) . ').');
+        }
+
+        $voteCount = 0;
+
+        foreach ($users as $user) {
+            // Randomly select distinct candidates
+            $randomCandidates = $candidates->random($phase == 2 ? 5 : 3);
+            
+            // Phase 1: 5, 3, 1
+            // Phase 2: 5, 4, 3, 2, 1
+            $points = $phase == 2 ? [5, 4, 3, 2, 1] : [5, 3, 1];
+            
+            foreach ($randomCandidates as $index => $candidate) {
+                \App\Models\Vote::create([
+                    'user_id' => $user->id,
+                    'candidate_id' => $candidate->id,
+                    'priority' => $index + 1,
+                    'points' => $points[$index],
+                    'phase' => $phase,
+                ]);
+            }
+            $voteCount++;
+        }
+
+        return redirect()->back()->with('success', "Berhasil menambahkan dummy vote untuk $voteCount pengguna.");
+    }
 }

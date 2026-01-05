@@ -96,11 +96,11 @@ class UserController extends Controller
 
         $callback = function() use ($columns) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
+            fputcsv($file, $columns, ';');
             
             // Example data
-            fputcsv($file, ['John Doe', 'john.doe', 'secret123']);
-            fputcsv($file, ['Jane Smith', 'jane.smith', '']); // Empty password uses default
+            fputcsv($file, ['John Doe', 'john.doe', 'secret123'], ';');
+            fputcsv($file, ['Jane Smith', 'jane.smith', ''], ';'); // Empty password uses default
             
             fclose($file);
         };
@@ -118,14 +118,12 @@ class UserController extends Controller
         
         // Simple CSV parsing
         $handle = fopen($file->getPathname(), "r");
-        $header = fgetcsv($handle, 1000, ","); // Skip header
-        dump('Header:', $header);
+        $header = fgetcsv($handle, 1000, ";"); // Skip header
         
         $importedCount = 0;
         $skippedCount = 0;
 
-        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-            dump('Row:', $data);
+        while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
             // Mapping based on template: 0=name, 1=username, 2=password
             $name = $data[0] ?? null;
             $username = $data[1] ?? null;
@@ -144,6 +142,7 @@ class UserController extends Controller
             \App\Models\User::create([
                 'name' => $name,
                 'username' => $username,
+                'email' => $username . '@bps.go.id',
                 'password' => bcrypt($password ?: 'password'), // Default password
             ]);
             

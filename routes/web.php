@@ -29,6 +29,10 @@ Route::middleware('auth')->group(function () {
         ->middleware(\App\Http\Middleware\EnsureIsAdmin::class)
         ->name('dashboard.update-phase');
         
+    Route::post('/dashboard/generate-dummy', [\App\Http\Controllers\DashboardController::class, 'generateDummyVotes'])
+        ->middleware(\App\Http\Middleware\EnsureIsAdmin::class)
+        ->name('dashboard.dummy-votes');
+
     Route::middleware(\App\Http\Middleware\EnsureIsAdmin::class)->group(function () {
         Route::get('users/template', [\App\Http\Controllers\UserController::class, 'downloadTemplate'])->name('users.template');
         Route::get('users/import', [\App\Http\Controllers\UserController::class, 'import'])->name('users.import');

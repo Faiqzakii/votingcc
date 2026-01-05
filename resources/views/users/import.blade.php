@@ -41,8 +41,9 @@
         <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r shadow-sm">
             <h3 class="text-sm font-bold text-blue-800 mb-2">Petunjuk:</h3>
             <ul class="text-sm text-blue-700 list-disc list-inside space-y-1">
-                <li>Format file wajib <strong>CSV</strong>.</li>
+                <li>Format file wajib <strong>CSV</strong> (Delimiter: Semicolon <code>;</code>).</li>
                 <li>Kolom yang dibutuhkan: <code>name</code>, <code>username</code>.</li>
+                <li>Email akan otomatis di-generate: <code>username@bps.go.id</code>.</li>
                 <li>Kolom opsional: <code>password</code> (default: 'password').</li>
                 <li>Username duplikat akan dilewati.</li>
             </ul>
