@@ -19,6 +19,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/vote/phase2', 'indexPhase2')->name('vote.phase2');
         Route::post('/vote/phase2', 'storePhase2')->name('vote.phase2.store');
         Route::get('/vote/done', 'done')->name('vote.done');
+        Route::get('/vote/closed', 'closed')->name('vote.closed');
     });
 
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])

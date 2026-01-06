@@ -21,6 +21,9 @@
                         <button type="submit" name="phase" value="2" class="px-3 py-1 text-xs font-bold rounded {{ $currentPhase == 2 ? 'bg-[#f79039] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
                             Tahap 2
                         </button>
+                        <button type="submit" name="phase" value="3" class="px-3 py-1 text-xs font-bold rounded {{ $currentPhase == 3 ? 'bg-red-600 text-white shadow-sm' : 'text-gray-500 hover:text-red-700' }}" onclick="return confirm('Apakah Anda yakin ingin MENUTUP sesi voting? Pengguna tidak akan bisa memilih lagi.')">
+                            Tutup
+                        </button>
                     </div>
                 </form>
 

@@ -10,6 +10,10 @@ class VoteController extends Controller
     {
         $currentPhase = \App\Models\Setting::where('key', 'current_phase')->value('value') ?? 1;
 
+        if ($currentPhase == 3) {
+            return view('vote.closed');
+        }
+
         if ($currentPhase == 2) {
             return redirect()->route('vote.phase2');
         }
@@ -27,6 +31,11 @@ class VoteController extends Controller
 
     public function store(\Illuminate\Http\Request $request)
     {
+        $currentPhase = \App\Models\Setting::where('key', 'current_phase')->value('value') ?? 1;
+        if ($currentPhase == 3) {
+            return redirect()->route('vote.closed'); 
+        }
+
         $request->validate([
             'candidate_1' => 'required',
             'candidate_2' => 'required|different:candidate_1',
@@ -62,6 +71,10 @@ class VoteController extends Controller
         return redirect()->route('vote.done')->with('success', 'Terima kasih telah berpartisipasi!');
     }
 
+    public function closed() {
+        return view('vote.closed');
+    }
+
     public function done() {
         return view('vote.done');
     }
@@ -71,6 +84,10 @@ class VoteController extends Controller
     public function indexPhase2()
     {
         $currentPhase = \App\Models\Setting::where('key', 'current_phase')->value('value') ?? 1;
+
+        if ($currentPhase == 3) {
+            return view('vote.closed');
+        }
 
         if ($currentPhase == 1) {
             return redirect()->route('vote');
@@ -96,6 +113,11 @@ class VoteController extends Controller
 
     public function storePhase2(\Illuminate\Http\Request $request)
     {
+        $currentPhase = \App\Models\Setting::where('key', 'current_phase')->value('value') ?? 1;
+        if ($currentPhase == 3) {
+            return redirect()->route('vote.closed');
+        }
+
         $request->validate([
             'candidate_1' => 'required',
             'candidate_2' => 'required|different:candidate_1',

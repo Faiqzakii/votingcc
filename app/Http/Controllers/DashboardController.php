@@ -38,7 +38,7 @@ class DashboardController extends Controller
     public function updatePhase(Request $request)
     {
         $request->validate([
-            'phase' => 'required|in:1,2',
+            'phase' => 'required|in:1,2,3',
         ]);
 
         \App\Models\Setting::updateOrCreate(
@@ -46,7 +46,9 @@ class DashboardController extends Controller
             ['value' => $request->phase]
         );
 
-        return redirect()->back()->with('success', 'Tahap voting berhasil diperbarui ke Tahap ' . $request->phase);
+        $msg = $request->phase == 3 ? 'Voting berhasil ditutup.' : 'Tahap voting berhasil diperbarui ke Tahap ' . $request->phase;
+
+        return redirect()->back()->with('success', $msg);
     }
 
     public function generateDummyVotes(Request $request)
