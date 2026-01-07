@@ -8,14 +8,26 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = \App\Models\User::query();
+        $query = \App\Models\User::query()->with('votes');
 
-        // Filter: Has Not Voted
-        if ($request->has('not_voted')) {
-            $query->whereDoesntHave('votes');
+        // Filter: Voting Status
+        if ($request->has('filter_status')) {
+            $status = $request->filter_status;
+            if ($status == 'not_voted_1') {
+                $query->whereDoesntHave('votes', function($q) {
+                    $q->where('phase', 1);
+                });
+            } elseif ($status == 'not_voted_2') {
+                $query->whereDoesntHave('votes', function($q) {
+                    $q->where('phase', 2);
+                });
+            }
+        } elseif ($request->has('not_voted')) {
+            // Backward compatibility or catch-all for "has no votes at all"
+             $query->whereDoesntHave('votes');
         }
 
-        $users = $query->where('email', '!=', 'admin@example.com') // Exclude admin from list? strictly speaking admin is a user too but usually we hide superadmin
+        $users = $query->where('email', '!=', 'admin@example.com')
                        ->orderBy('name')
                        ->paginate(10);
 

@@ -21,8 +21,9 @@
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-bold text-gray-800">Daftar Pengguna</h2>
             <div class="flex gap-2">
-                <a href="{{ route('users.index') }}" class="px-3 py-1 rounded-full text-sm {{ !request('not_voted') ? 'bg-indigo-100 text-indigo-800' : 'text-gray-600 hover:bg-gray-100' }}">Semua</a>
-                <a href="{{ route('users.index', ['not_voted' => 1]) }}" class="px-3 py-1 rounded-full text-sm {{ request('not_voted') ? 'bg-orange-100 text-orange-800' : 'text-gray-600 hover:bg-gray-100' }}">Belum Memilih</a>
+                <a href="{{ route('users.index') }}" class="px-3 py-1 rounded-full text-sm {{ !request('filter_status') ? 'bg-indigo-100 text-indigo-800' : 'text-gray-600 hover:bg-gray-100' }}">Semua</a>
+                <a href="{{ route('users.index', ['filter_status' => 'not_voted_1']) }}" class="px-3 py-1 rounded-full text-sm {{ request('filter_status') == 'not_voted_1' ? 'bg-orange-100 text-orange-800' : 'text-gray-600 hover:bg-gray-100' }}">Belum T1</a>
+                <a href="{{ route('users.index', ['filter_status' => 'not_voted_2']) }}" class="px-3 py-1 rounded-full text-sm {{ request('filter_status') == 'not_voted_2' ? 'bg-red-100 text-red-800' : 'text-gray-600 hover:bg-gray-100' }}">Belum T2</a>
             </div>
         </div>
 
@@ -32,7 +33,8 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Tahap 1</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Tahap 2</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -45,14 +47,26 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-500">{{ $user->username }}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @if(\App\Models\Vote::where('user_id', $user->id)->exists())
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+
+                            @if($user->votes->where('phase', 1)->count() > 0)
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    Sudah Memilih
+                                    Sudah
                                 </span>
                             @else
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
-                                    Belum Memilih
+                                    Belum
+                                </span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            @if($user->votes->where('phase', 2)->count() > 0)
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    Sudah
+                                </span>
+                            @else
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    Belum
                                 </span>
                             @endif
                         </td>
