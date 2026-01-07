@@ -9,22 +9,29 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $phase = $request->get('phase', 1);
+        
+        // Only accept phase 1 or 2
+        if (!in_array($phase, [1, 2, '1', '2'])) {
+            $phase = 1;
+        }
+        $phase = (int) $phase;
 
         // Get candidates with sum of scores, ordered by highest score
-        $candidates = \App\Models\Candidate::withSum(['votes' => function($query) use ($phase) {
-                if ($phase != 'all') {
-                    $query->where('phase', $phase);
-                }
-            }], 'points')
-            ->orderByDesc('votes_sum_points')
-            ->get();
+        $candidatesQuery = \App\Models\Candidate::withSum(['votes' => function($query) use ($phase) {
+                $query->where('phase', $phase);
+            }], 'points');
+        
+        // For Phase 2, only show finalists in the ranking
+        if ($phase == 2) {
+            $candidatesQuery->where('is_finalist', true);
+        }
+        
+        $candidates = $candidatesQuery->orderByDesc('votes_sum_points')->get();
             
         // Total voters
-        $totalVotersQuery = \App\Models\Vote::distinct('user_id');
-        if ($phase != 'all') {
-            $totalVotersQuery->where('phase', $phase);
-        }
-        $totalVoters = $totalVotersQuery->count('user_id');
+        $totalVoters = \App\Models\Vote::where('phase', $phase)
+            ->distinct('user_id')
+            ->count('user_id');
 
         // Total possible voters (assuming all non-admin users)
         $totalUsers = \App\Models\User::where('email', '!=', 'admin@example.com')->count();
@@ -98,5 +105,22 @@ class DashboardController extends Controller
         }
 
         return redirect()->back()->with('success', "Berhasil menambahkan dummy vote untuk $voteCount pengguna.");
+    }
+
+    public function export(Request $request)
+    {
+        $phase = $request->get('phase', 1);
+        
+        // Ensure phase is 1 or 2
+        if (!in_array($phase, [1, 2])) {
+            $phase = 1;
+        }
+
+        $filename = 'hasil_voting_tahap_' . $phase . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+        
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\VoteResultsExport($phase),
+            $filename
+        );
     }
 }

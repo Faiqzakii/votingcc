@@ -33,6 +33,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/dashboard/generate-dummy', [\App\Http\Controllers\DashboardController::class, 'generateDummyVotes'])
         ->middleware(\App\Http\Middleware\EnsureIsAdmin::class)
         ->name('dashboard.dummy-votes');
+        
+    Route::get('/dashboard/export', [\App\Http\Controllers\DashboardController::class, 'export'])
+        ->middleware(\App\Http\Middleware\EnsureIsAdmin::class)
+        ->name('dashboard.export');
 
     Route::middleware(\App\Http\Middleware\EnsureIsAdmin::class)->group(function () {
         Route::get('users/template', [\App\Http\Controllers\UserController::class, 'downloadTemplate'])->name('users.template');

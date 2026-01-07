@@ -5,11 +5,9 @@
     <div class="glass-card rounded-3xl p-8 md:p-12">
         <div class="mb-10 text-center">
             <span class="inline-block px-4 py-1 rounded-full bg-orange-100 text-orange-800 text-sm font-bold mb-4">TAHAP 2 - FINAL</span>
-            <h1 class="text-3xl font-bold text-gray-900 mb-4">Pilih 5 Besar Change Champion</h1>
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">Pilih Wajah Perubahan BPS Kaltara!</h1>
             <p class="text-gray-600 max-w-2xl mx-auto">
-                Silakan urutkan 5 finalis terbaik dari Ranking 1 hingga Ranking 5.
-                <br>
-                <span class="font-bold text-[#f79039]">Rank 1 (5 poin)</span> ... <span class="font-bold text-[#f79039]">Rank 5 (1 poin)</span>
+                Suara Anda menentukan siapa yang akan memimpin transformasi. <br>Urutkan finalis favorit Anda dari yang paling 'Berani Berubah dan Berani Berdampak' untuk BPS Kaltara.
             </p>
         </div>
 
@@ -32,7 +30,7 @@
             </div>
         @endif
 
-        <form action="{{ route('vote.phase2.store') }}" method="POST" class="space-y-6">
+        <form id="voteForm" action="{{ route('vote.phase2.store') }}" method="POST" class="space-y-6">
             @csrf
             
             @php
@@ -51,11 +49,11 @@
                     {{ $rank }}
                 </div>
                 <div class="flex-grow">
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Peringkat {{ $rank }} ({{ $style['points'] }} Poin)</label>
-                    <select name="candidate_{{ $rank }}" required class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Peringkat {{ $rank }}</label>
+                    <select name="candidate_{{ $rank }}" id="candidate_{{ $rank }}" required class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
                         <option value="">Pilih Finalis...</option>
                         @foreach($candidates as $candidate)
-                            <option value="{{ $candidate->id }}" {{ old('candidate_'.$rank) == $candidate->id ? 'selected' : '' }}>
+                            <option value="{{ $candidate->id }}" data-name="{{ $candidate->name }}" {{ old('candidate_'.$rank) == $candidate->id ? 'selected' : '' }}>
                                 {{ $candidate->name }}
                             </option>
                         @endforeach
@@ -65,11 +63,110 @@
             @endforeach
 
             <div class="pt-6">
-                <button type="submit" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-gradient-to-r from-[#f79039] to-[#febd26] hover:from-[#e08030] hover:to-[#e5aa20] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#f79039] transform transition-all duration-150 hover:scale-[1.02]">
+                <button type="button" onclick="confirmVote()" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-gradient-to-r from-[#f79039] to-[#febd26] hover:from-[#e08030] hover:to-[#e5aa20] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#f79039] transform transition-all duration-150 hover:scale-[1.02]">
                     Kirim Peringkat Final
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function confirmVote() {
+    // Get selected candidates
+    const ranks = [1, 2, 3, 4, 5];
+    let listHtml = '';
+    let allSelected = true;
+    let selectedValues = [];
+    let candidateNames = {};
+
+    for (const rank of ranks) {
+        const select = document.getElementById('candidate_' + rank);
+        const selectedOption = select.options[select.selectedIndex];
+        
+        if (!select.value) {
+            allSelected = false;
+            break;
+        }
+        
+        selectedValues.push(select.value);
+        const candidateName = selectedOption.getAttribute('data-name') || selectedOption.text;
+        candidateNames[select.value] = candidateName;
+        
+        listHtml += `<div class="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
+            <span class="w-8 h-8 rounded-full bg-gradient-to-r from-[#f79039] to-[#febd26] text-white flex items-center justify-center font-bold text-sm">${rank}</span>
+            <span class="font-medium text-gray-800">${candidateName}</span>
+        </div>`;
+    }
+
+    if (!allSelected) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Belum Lengkap',
+            text: 'Harap pilih kandidat untuk semua peringkat!',
+            confirmButtonColor: '#f79039'
+        });
+        return;
+    }
+
+    // Check for duplicate selections
+    const duplicates = selectedValues.filter((item, index) => selectedValues.indexOf(item) !== index);
+    if (duplicates.length > 0) {
+        const duplicateNames = [...new Set(duplicates)].map(id => candidateNames[id]).join(', ');
+        Swal.fire({
+            icon: 'error',
+            title: 'Ada Pilihan Ganda',
+            html: `<p>Kandidat <strong>${duplicateNames}</strong> dipilih lebih dari satu kali.</p><p class="mt-2 text-gray-600">Setiap kandidat hanya boleh dipilih satu kali.</p>`,
+            confirmButtonColor: '#f79039'
+        });
+        return;
+    }
+
+    // First confirmation - show the list
+    Swal.fire({
+        title: 'Konfirmasi Pilihan Anda',
+        html: `<div class="text-left mt-4">${listHtml}</div>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Sudah Benar',
+        cancelButtonText: 'Ubah Pilihan',
+        confirmButtonColor: '#f79039',
+        cancelButtonColor: '#6b7280',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Second confirmation - final confirmation
+            Swal.fire({
+                title: 'Yakin dengan Pilihan Anda?',
+                html: '<p class="text-gray-600">Pilihan yang sudah dikirim <strong>tidak dapat diubah</strong>.</p>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Kirim Sekarang',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#f79039',
+                cancelButtonColor: '#6b7280',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Mengirim...',
+                        text: 'Mohon tunggu sebentar',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    document.getElementById('voteForm').submit();
+                }
+            });
+        }
+    });
+}
+</script>
 @endsection

@@ -43,11 +43,8 @@
                 <a href="{{ route('dashboard', ['phase' => 1]) }}" class="px-4 py-2 text-sm font-medium {{ $phase == 1 ? 'bg-orange-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }} border border-gray-200 rounded-l-lg">
                     Tahap 1
                 </a>
-                <a href="{{ route('dashboard', ['phase' => 2]) }}" class="px-4 py-2 text-sm font-medium {{ $phase == 2 ? 'bg-orange-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }} border-t border-b border-gray-200">
+                <a href="{{ route('dashboard', ['phase' => 2]) }}" class="px-4 py-2 text-sm font-medium {{ $phase == 2 ? 'bg-orange-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }} border border-gray-200 rounded-r-lg border-l-0">
                     Tahap 2
-                </a>
-                <a href="{{ route('dashboard', ['phase' => 'all']) }}" class="px-4 py-2 text-sm font-medium {{ $phase == 'all' ? 'bg-orange-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }} border border-gray-200 rounded-r-lg">
-                    Semua
                 </a>
             </div>
         </div>
@@ -84,8 +81,12 @@
 
     <!-- Leaderboard -->
     <div class="glass-card rounded-3xl overflow-hidden shadow-xl">
-        <div class="px-8 py-6 border-b border-gray-200 bg-white/50">
+        <div class="px-8 py-6 border-b border-gray-200 bg-white/50 flex justify-between items-center">
             <h2 class="text-xl font-bold text-gray-900">Peringkat</h2>
+            <a href="{{ route('dashboard.export', ['phase' => $phase]) }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 shadow-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Export Excel
+            </a>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -132,13 +133,16 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 <div class="flex gap-2">
-                                    @if($phase == 2 || $phase == 'all')
-                                        <span class="px-2 py-0.5 rounded text-xs bg-[#f79039]/20 text-[#f79039] border border-[#f79039]/30" title="Rank 1">1: {{ $candidate->votes()->where('priority', 1)->where(function($q) use($phase){ if($phase!='all') $q->where('phase',$phase); })->count() }}</span>
-                                    @endif
-                                    @if($phase == 1 || $phase == 'all')
-                                        <span class="px-2 py-0.5 rounded text-xs bg-[#f79039]/20 text-[#f79039] border border-[#f79039]/30">1: {{ $candidate->votes()->where('priority', 1)->where(function($q) use($phase){ if($phase!='all') $q->where('phase',$phase); })->count() }}</span>
-                                        <span class="px-2 py-0.5 rounded text-xs bg-[#febd26]/20 text-[#febd26] border border-[#febd26]/30">2: {{ $candidate->votes()->where('priority', 2)->where(function($q) use($phase){ if($phase!='all') $q->where('phase',$phase); })->count() }}</span>
-                                        <span class="px-2 py-0.5 rounded text-xs bg-[#ffd635]/20 text-[#ffd635] text-gray-500 border border-[#ffd635]/30">3: {{ $candidate->votes()->where('priority', 3)->where(function($q) use($phase){ if($phase!='all') $q->where('phase',$phase); })->count() }}</span>
+                                    @if($phase == 2)
+                                        <span class="px-2 py-0.5 rounded text-xs bg-[#f79039]/20 text-[#f79039] border border-[#f79039]/30" title="Rank 1 (5 poin)">1: {{ $candidate->votes()->where('priority', 1)->where('phase', 2)->count() }}</span>
+                                        <span class="px-2 py-0.5 rounded text-xs bg-[#ff8c33]/20 text-[#ff8c33] border border-[#ff8c33]/30" title="Rank 2 (4 poin)">2: {{ $candidate->votes()->where('priority', 2)->where('phase', 2)->count() }}</span>
+                                        <span class="px-2 py-0.5 rounded text-xs bg-[#febd26]/20 text-[#febd26] border border-[#febd26]/30" title="Rank 3 (3 poin)">3: {{ $candidate->votes()->where('priority', 3)->where('phase', 2)->count() }}</span>
+                                        <span class="px-2 py-0.5 rounded text-xs bg-[#ffd635]/20 text-[#a88f00] border border-[#ffd635]/30" title="Rank 4 (2 poin)">4: {{ $candidate->votes()->where('priority', 4)->where('phase', 2)->count() }}</span>
+                                        <span class="px-2 py-0.5 rounded text-xs bg-[#ffe066]/20 text-[#8a7500] border border-[#ffe066]/30" title="Rank 5 (1 poin)">5: {{ $candidate->votes()->where('priority', 5)->where('phase', 2)->count() }}</span>
+                                    @elseif($phase == 1)
+                                        <span class="px-2 py-0.5 rounded text-xs bg-[#f79039]/20 text-[#f79039] border border-[#f79039]/30" title="Rank 1 (5 poin)">1: {{ $candidate->votes()->where('priority', 1)->where('phase', 1)->count() }}</span>
+                                        <span class="px-2 py-0.5 rounded text-xs bg-[#febd26]/20 text-[#febd26] border border-[#febd26]/30" title="Rank 2 (3 poin)">2: {{ $candidate->votes()->where('priority', 2)->where('phase', 1)->count() }}</span>
+                                        <span class="px-2 py-0.5 rounded text-xs bg-[#ffd635]/20 text-[#a88f00] border border-[#ffd635]/30" title="Rank 3 (1 poin)">3: {{ $candidate->votes()->where('priority', 3)->where('phase', 1)->count() }}</span>
                                     @endif
                                 </div>
                             </td>
